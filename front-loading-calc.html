@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Front-Loading Donation NPV Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 500px;
+    }
+    h1 {
+      font-size: 20px;
+    }
+    .controls {
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+    th {
+      background: #f2f2f2;
+    }
+    input[type="number"] {
+      width: 110px;
+    }
+    .year-col {
+      width: 70px;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 18px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Front-Loading Donation Budget Tool</h1>
+
+  <div class="controls">
+    <label>
+      Discount Rate (% per year):
+      <input type="number" id="rate" value="5" step="0.1" min="0" />
+      (Enter 5 for 5%)
+    </label>
+
+    <br><br>
+
+    <label>
+      <input type="radio" name="mode" value="one" checked />
+      One year (front-load into 2026)
+    </label>
+	<br>
+    <label>
+      <input type="radio" name="mode" value="three" />
+      Three years (front-load into 2026–2028)
+    </label>
+
+    <br><br>
+
+    <label>
+      <input type="checkbox" id="sameAllYears" />
+      All years the same (copy values from from 2026)
+    </label>
+  </div>
+
+  <table id="budgetTable">
+    <thead>
+      <tr>
+        <th class="year-col">Year</th>
+        <th>Original Planned Amount</th>
+        <th>Crisis Planned Amount</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button id="calcBtn">Calculate</button>
+
+  <script>
+    const startYear = 2026;
+    const numYears = 20; // 2026–2045 inclusive
+    const tableBody = document.querySelector("#budgetTable tbody");
+
+    // Build table rows
+    for (let i = 0; i < numYears; i++) {
+      const year = startYear + i;
+
+      const row = document.createElement("tr");
+
+      const yearCell = document.createElement("td");
+      yearCell.textContent = year;
+      yearCell.className = "year-col";
+
+      const opaCell = document.createElement("td");
+      const opaInput = document.createElement("input");
+      opaInput.type = "number";
+ step="1"; min="0";
+      opaInput.value = 0;
+      opaInput.id = `opa-${year}`;
+      opaCell.appendChild(opaInput);
+
+      const npaCell = document.createElement("td");
+      const npaInput = document.createElement("input");
+      npaInput.type = "number";
+ step="1"; min="0";
+      npaInput.value = 0;
+      npaInput.id = `npa-${year}`;
+      npaCell.appendChild(npaInput);
+
+      row.appendChild(yearCell);
+      row.appendChild(opaCell);
+      row.appendChild(npaCell);
+
+      tableBody.appendChild(row);
+    }
+
+    // Handle "All years the same"
+    document.getElementById("sameAllYears").addEventListener("change", function () {
+      const checked = this.checked;
+
+      const baseOPA = document.getElementById("opa-2026");
+      const baseNPA = document.getElementById("npa-2026");
+
+      for (let i = 1; i < numYears; i++) {
+        const year = startYear + i;
+        const opaField = document.getElementById(`opa-${year}`);
+        const npaField = document.getElementById(`npa-${year}`);
+
+        if (checked) {
+          opaField.value = baseOPA.value;
+          npaField.value = baseNPA.value;
+          opaField.disabled = true;
+          npaField.disabled = true;
+        } else {
+          opaField.disabled = false;
+          npaField.disabled = false;
+        }
+      }
+
+      if (checked) {
+        baseOPA.addEventListener("input", syncAllYears);
+        baseNPA.addEventListener("input", syncAllYears);
+      } else {
+        baseOPA.removeEventListener("input", syncAllYears);
+        baseNPA.removeEventListener("input", syncAllYears);
+      }
+    });
+
+    function syncAllYears() {
+      const baseOPA = document.getElementById("opa-2026").value;
+      const baseNPA = document.getElementById("npa-2026").value;
+
+      for (let i = 1; i < numYears; i++) {
+        const year = startYear + i;
+        document.getElementById(`opa-${year}`).value = baseOPA;
+        document.getElementById(`npa-${year}`).value = baseNPA;
+      }
+    }
+
+    // Calculation
+    document.getElementById("calcBtn").addEventListener("click", function () {
+      const rPercent = parseFloat(document.getElementById("rate").value);
+      const r = rPercent / 100;
+
+      const mode = document.querySelector("input[name='mode']:checked").value;
+
+      // Compute NPV
+      let NPV = 0;
+
+      for (let i = 0; i < numYears; i++) {
+        const year = startYear + i;
+
+        const opa = parseFloat(document.getElementById(`opa-${year}`).value) || 0;
+        const npa = parseFloat(document.getElementById(`npa-${year}`).value) || 0;
+
+        // Discount exponent: 2026 is discounted as year 1
+        const exponent = i + 1;
+//        const exponent = i;
+        const discountFactor = Math.pow(1 + r, exponent);
+
+        let diff;
+
+        if (mode === "one") {
+          // Treat 2026 as zero in the NPV computation
+          if (year === 2026) {
+            diff = 0;
+          } else {
+            diff = opa - npa;
+          }
+        } else {
+          // Treat 2026–2028 as zero in the NPV computation
+          if (year === 2026 || year === 2027 || year === 2028) {
+            diff = 0;
+          } else {
+            diff = opa - npa;
+          }
+        }
+
+        NPV += diff / discountFactor;
+      }
+
+      // Apply overwrite rule (CORRECTED)
+      if (mode === "one") {
+        const year = 2026;
+        const opa2026 =
+          parseFloat(document.getElementById(`opa-${year}`).value) || 0;
+
+        // One-year: NPA = OPA + NPV
+        document.getElementById(`npa-${year}`).value =
+          opa2026 + NPV;
+
+      } else {
+        // Three-year: NPA = OPA + NPV/3 for 2026–2028
+        for (let year of [2026, 2027, 2028]) {
+          const opaVal =
+            parseFloat(document.getElementById(`opa-${year}`).value) || 0;
+
+          document.getElementById(`npa-${year}`).value =
+            opaVal + NPV / 3;
+        }
+      }
+
+      alert("Calculation complete. NPA values updated.");
+    });
+  </script>
+</body>
+</html>
