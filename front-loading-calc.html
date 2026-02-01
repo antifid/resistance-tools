@@ -105,12 +105,26 @@
       .instructions {
         display: none;
       }
+      .toggle-instructions { display: inline-block; }
       table {
         font-size: 12px;
       }
       input.money {
         width: 80px;
       }
+    }
+
+    .toggle-instructions { 
+      display: none;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: none;
+      background: black;
+      color: white;
+      cursor: pointer;
     }
 
     /* Desktop mode: calculator + instructions side by side */
@@ -127,6 +141,7 @@
     <h1>Front-Loading Donation Budget Tool</h1>
 
     <div class="layout">
+      <button class="toggle-instructions" id="toggleBtn">Show Instructions</button>
       <div class="tool">
         <div class="controls">
           <label>
@@ -175,15 +190,13 @@
           while keeping the overall long-term budget fair using Net Present Value (NPV).
         </p>
         <ol>
-          <li>Enter your annual discount rate (example: 5%).</li>
-          <li>Fill in your Original Planned Amounts (OPA).</li>
-          <li>Adjust Crisis Planned Amounts (NPA) for later years if desired.</li>
+          <li>Enter your annual discount rate (If you don't know, then 5% is a good default).</li>
+          <li>Fill in your Original Planned Amounts.</li>
+          <li>Adjust Crisis Planned Amounts for later years if desired.</li>
+          <li>If you will want the same values for every year (Original) or future year (Crisis), enter those numbers for 2026, and select "All years the same..."
           <li>Click <b>Calculate</b>. The tool will automatically increase early-year giving
               to balance reductions later.</li>
         </ol>
-        <p>
-          Mobile mode hides this panel so the calculator fits cleanly on a phone screen.
-        </p>
       </div>
     </div>
   </div>
@@ -256,6 +269,40 @@
           opaField.disabled = false;
           npaField.disabled = false;
         }
+      }
+
+      if (checked) {
+        baseOPA.addEventListener("input", syncAllYears);
+        baseNPA.addEventListener("input", syncAllYears);
+      } else {
+        baseOPA.removeEventListener("input", syncAllYears);
+        baseNPA.removeEventListener("input", syncAllYears);
+      }
+    });
+
+    function syncAllYears() {
+      const baseOPA = document.getElementById("opa-2026").value;
+      const baseNPA = document.getElementById("npa-2026").value;
+
+      for (let i = 1; i < numYears; i++) {
+        const year = startYear + i;
+        document.getElementById(`opa-${year}`).value = baseOPA;
+        document.getElementById(`npa-${year}`).value = baseNPA;
+      }
+    }
+
+    
+    // Mobile instructions toggle
+    const toggleBtn = document.getElementById("toggleBtn");
+    const instructionsPanel = document.querySelector(".instructions");
+
+    toggleBtn.addEventListener("click", function() {
+      if (instructionsPanel.style.display === "block") {
+        instructionsPanel.style.display = "none";
+        toggleBtn.textContent = "Show Instructions";
+      } else {
+        instructionsPanel.style.display = "block";
+        toggleBtn.textContent = "Hide Instructions";
       }
     });
 
