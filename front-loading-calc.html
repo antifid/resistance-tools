@@ -115,7 +115,7 @@
     }
 
     .toggle-instructions { 
-      display: none;
+      display: inline-block;
       margin-bottom: 10px;
       width: 100%;
       padding: 10px;
@@ -129,6 +129,9 @@
 
     /* Desktop mode: calculator + instructions side by side */
     @media (min-width: 701px) {
+      .toggle-instructions {
+        display: none;
+      }
       .layout {
         flex-direction: row;
         align-items: flex-start;
@@ -350,4 +353,5 @@
   </script>
 </body>
 </html>
+
 
