@@ -146,16 +146,20 @@
         <h2 style="font-size:16px;margin-top:0;">How to Use This Tool</h2>
         <p>
           This calculator helps you shift (“front-load”) donations into the early crisis years
-          while keeping the overall long-term budget fair using Net Present Value (NPV). <i>(If you don't know what NPV is, that's OK. The calculator does the math part. You can keep in mind the "fair" part.)</i><br>
-		  The idea is that you tell the calculator how much you're willing to reduce your future donations, by giving it donation amounts in your Original plan and your Crisis plan. The calculator will then tell you
-		  how much you should give in early years to "fairly" balance those reductions.
+          while keeping the overall long-term budget fair using Net Present Value (NPV). <i>(If you don't know what NPV is, that's OK. The calculator does the math part. You can keep in mind the "fair" part.)</i>
         </p>
         <ol>
-          <li>Enter your annual discount rate. (If you don't have a guess, use 5%.)</li>
-          <li>Decide whether you're front-loading just into 2026, or into 3 years 2026-2028.</li?
-          <li>If you will want the same values for every year, check the "Use these values for all years" box and then enter the Original Planned Amount and Crisis Planned Amount once each. Remember that the Crisis Planned Amount should be at least as high as the Original Planned Amount since if there's a crisis in 2027, you won't be increasing dinations in 2035.
+          <li>Enter your annual discount rate.
+		<ul>
+		  <li>If you don't have a guess, use 5%.</li>
+		  <li>If you want to front-load without discounting, user 0%</li>
+		</ul>
+          </li>
+          <li>Decide whether you're front-loading just into 2026, or into 3 years 2026-2028.</li>
+          <li>If you will want the same planned values entered for every year, check the "Use these values for all years" box and then enter the Original Planned Amount and Crisis Planned Amount once each. Remember that the Crisis Planned Amount should be no higher than the Original Planned Amount since if there's a crisis in 2027, you won't be increasing donations in 2035.
           <li>If you want a more customized plan year-by-year, leave that box unchecked and enter the amounts for each year.
           <li>Click <b>Calculate</b>. The tool will automatically set either the first year or the first three years to balance reductions later.</li>
+          <li>This tool is new. Find a bug? Email me at <a href="mailto:resistancepocketbook@gmail.com">resistancepocketbook@gmail.com</a> and let me know!</li>
         </ol>
       </div>
 
@@ -323,6 +327,19 @@
       return true;
     }
 
+    function validateDiscountRate() {
+      const rateInput = document.getElementById("rate");
+      const rateValue = parseFloat(rateInput.value);
+
+      if (isNaN(rateValue) || rateValue < 0 || rateValue > 50) {
+        alert("Discount rate must be between 0% and 50%.");
+        rateInput.value = ""; // Clear invalid input
+        rateInput.focus();    // Refocus the field for correction
+        return false;
+      }
+      return true;
+    }
+
     for (let i = 0; i < numYears; i++) {
       const year = startYear + i;
       const opaField = document.getElementById(`opa-${year}`);
@@ -352,6 +369,11 @@
         "Master Fields"
       );
       syncAllYears();
+    });
+
+    // Real-time validation (optional)
+    document.getElementById("rate").addEventListener("input", function() {
+      validateDiscountRate();
     });
 
     function syncAllYears() {
@@ -424,7 +446,6 @@
   </script>
 </body>
 </html>
-
 
 
 
