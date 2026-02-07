@@ -142,6 +142,21 @@
   <div class="page">
     <h1>Front-Loading Donation Calculator</h1>
 
+      <div class="instructions">
+        <h2 style="font-size:16px;margin-top:0;">How to Use This Tool</h2>
+        <p>
+          This calculator helps you shift (“front-load”) donations into the early crisis years
+          while keeping the overall long-term budget fair using Net Present Value (NPV). <i>(If you don't know what NPV is, that's OK. The calculator does the math part. You can keep in mind the "fair" part.)</i>
+        </p>
+        <ol>
+          <li>Enter your annual discount rate. (If you don't have a guess, use 5%.)</li>
+          <li>Decide whether you're front-loading just into 2026, or into 3 years 2026-2028.</li?
+          <li>If you will want the same values for every year, check the "Use these values for all years" box and then enter the Original Planned Amount and Crisis Planned Amount once each. Remember that the Crisis Planned Amount should be at least as high as the Original Planned Amount since if there's a crisis in 2027, you won't be increasing dinations in 2035.
+          <li>If you want a more customized plan year-by-year, leave that box unchecked and enter the amounts for each year.
+          <li>Click <b>Calculate</b>. The tool will automatically set either the first year or the first three years to balance reductions later.</li>
+        </ol>
+      </div>
+
     <div class="layout">
       <button class="toggle-instructions" id="toggleBtn">Show Instructions</button>
       <div class="tool">
@@ -167,8 +182,25 @@
 
           <label>
             <input type="checkbox" id="sameAllYears" />
-            All years the same (copy values from 2026)
+            Use these values for all years
           </label>
+          <br><br>
+
+        <table id="masteTable">
+          <thead>
+            <tr>
+              <th>Original Planned Amount</th>
+              <th>Crisis Planned Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th><input type="text" id="masterOPA" class="money-input" placeholder="0"></th>
+              <th><input type="text" id="masterNPA" class="money-input" placeholder="0"></th>
+            </tr>
+	  </tbody>
+        </table>
+
         </div>
 
         <table id="budgetTable">
@@ -185,21 +217,6 @@
         <button id="calcBtn">Calculate</button>
       </div>
 
-      <div class="instructions">
-        <h2 style="font-size:16px;margin-top:0;">How to Use This Tool</h2>
-        <p>
-          This calculator helps you shift (“front-load”) donations into the early crisis years
-          while keeping the overall long-term budget fair using Net Present Value (NPV). <i>(If you don't know what NPV is, that's OK. The calculator does the math part. You can keep in mind the "fair" part.)</i>
-        </p>
-        <ol>
-          <li>Enter your annual discount rate (If you don't know, then 5% is a good default).</li>
-          <li>Fill in your Original Planned Amounts.</li>
-          <li>Adjust Crisis Planned Amounts for later years if desired.</li>
-          <li>If you will want the same values for every year (Original) or future year (Crisis), enter those numbers for 2026, and select "All years the same..."
-          <li>Click <b>Calculate</b>. The tool will automatically increase early-year giving
-              to balance reductions later.</li>
-        </ol>
-      </div>
     </div>
   </div>
 
@@ -254,10 +271,10 @@
     // Handle "All years the same"
     document.getElementById("sameAllYears").addEventListener("change", function () {
       const checked = this.checked;
-      const baseOPA = document.getElementById("opa-2026");
-      const baseNPA = document.getElementById("npa-2026");
+      const baseOPA = document.getElementById("masterOPA");
+      const baseNPA = document.getElementById("masterNPA");
 
-      for (let i = 1; i < numYears; i++) {
+      for (let i = 0; i < numYears; i++) {
         const year = startYear + i;
         const opaField = document.getElementById(`opa-${year}`);
         const npaField = document.getElementById(`npa-${year}`);
@@ -282,17 +299,69 @@
       }
     });
 
-    function syncAllYears() {
-      const baseOPA = document.getElementById("opa-2026").value;
-      const baseNPA = document.getElementById("npa-2026").value;
+    function validateCurrencyField(input, fieldName) {
+      const value = getMoneyValue(input);
+      if (value < 0) {
+        alert(`${fieldName} cannot be negative.`);
+        input.value = "0";
+        return false;
+      }
+      return true;
+    }
 
-      for (let i = 1; i < numYears; i++) {
+    function validateCrisisVsOriginal(opaField, npaField, year) {
+      const opa = getMoneyValue(opaField);
+      const npa = getMoneyValue(npaField);
+
+      if (npa > opa) {
+        alert(`For ${year}, Crisis Planned Amount cannot be larger than Original Planned Amount.`);
+        npaField.value = opa.toLocaleString("en-US");
+        return false;
+      }
+      return true;
+    }
+
+    for (let i = 0; i < numYears; i++) {
+      const year = startYear + i;
+      const opaField = document.getElementById(`opa-${year}`);
+      const npaField = document.getElementById(`npa-${year}`);
+
+      opaField.addEventListener("input", () => {
+        validateCurrencyField(opaField, `Original Planned Amount (${year})`);
+        validateCrisisVsOriginal(opaField, npaField, year);
+      });
+
+      npaField.addEventListener("input", () => {
+        validateCurrencyField(npaField, `Crisis Planned Amount (${year})`);
+        validateCrisisVsOriginal(opaField, npaField, year);
+      });
+    }
+
+    document.getElementById("masterOPA").addEventListener("input", function() {
+      validateCurrencyField(this, "Master Original Planned Amount");
+      syncAllYears();
+    });
+
+    document.getElementById("masterNPA").addEventListener("input", function() {
+      validateCurrencyField(this, "Master Crisis Planned Amount");
+      validateCrisisVsOriginal(
+        document.getElementById("masterOPA"),
+        this,
+        "Master Fields"
+      );
+      syncAllYears();
+    });
+
+    function syncAllYears() {
+      const baseOPA = document.getElementById("masterOPA").value;
+      const baseNPA = document.getElementById("masterNPA").value;
+
+      for (let i = 0; i < numYears; i++) {
         const year = startYear + i;
         document.getElementById(`opa-${year}`).value = baseOPA;
         document.getElementById(`npa-${year}`).value = baseNPA;
       }
     }
-
     
     // Mobile instructions toggle
     const toggleBtn = document.getElementById("toggleBtn");
@@ -353,7 +422,6 @@
   </script>
 </body>
 </html>
-
 
 
 
