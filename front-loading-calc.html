@@ -146,7 +146,7 @@
         <h2 style="font-size:16px;margin-top:0;">How to Use This Tool</h2>
         <p>
           This calculator helps you shift (“front-load”) donations into the early crisis years
-          while keeping the overall long-term budget fair using Net Present Value (NPV). <i>(If you don't know what NPV is, that's OK. The calculator does the math part. You can keep in mind the "fair" part.)</i>
+          while keeping the overall long-term budget fair using Present Value (PV). <i>(If you don't know what PV is, that's OK. The calculator does the math part. You can keep in mind the "fair" part.)</i>
         </p>
         <ol>
           <li>Enter your annual discount rate.
@@ -407,7 +407,7 @@
       const r = rPercent / 100;
       const mode = document.querySelector("input[name='mode']:checked").value;
 
-      let NPV = 0;
+      let PV = 0;
 
       for (let i = 0; i < numYears; i++) {
         const year = startYear + i;
@@ -425,18 +425,18 @@
           if (![2026, 2027, 2028].includes(year)) diff = opa - npa;
         }
 
-        NPV += diff / discountFactor;
+        PV += diff / discountFactor;
       }
 
       if (mode === "one") {
         const opa2026 = getMoneyValue(document.getElementById("opa-2026"));
         document.getElementById("npa-2026").value =
-          Math.round(opa2026 + NPV).toLocaleString("en-US");
+          Math.round(opa2026 + PV).toLocaleString("en-US");
       } else {
         for (let year of [2026, 2027, 2028]) {
           const opaVal = getMoneyValue(document.getElementById(`opa-${year}`));
           document.getElementById(`npa-${year}`).value =
-            Math.round(opaVal + NPV / 3).toLocaleString("en-US");
+            Math.round(opaVal + PV / 3).toLocaleString("en-US");
         }
       }
 
@@ -446,6 +446,7 @@
   </script>
 </body>
 </html>
+
 
 
 
