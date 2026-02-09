@@ -132,15 +132,20 @@ or customize year-by-year.
 
 <h3>Basic Plan</h3>
 
-<label>
-Original Planned Amount per Year:
+<table id=baseAmounts>
+<tr><thead><td></td>td><td colspan="2">Planned Donation Amounts per Year</td></td></thead></tr>
+<tr></tr>
+<td><label>
+Original (No Crisis):
 <input type="text" id="basicOPA" class="money" value="0">
-</label>
+</label></td>
 
-<label>
-Crisis Planned Amount per Year:
+<td><label>
+Post-Crisis Years:
 <input type="text" id="basicNPA" class="money" value="0">
 </label>
+</table></td>
+</tr>
 
 <div class="result-box" id="resultBox" style="display:none;"></div>
 <br>
@@ -339,3 +344,4 @@ document.getElementById("calcBtn").onclick = () => {
 
 </body>
 </html>
+
