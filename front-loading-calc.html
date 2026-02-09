@@ -1,455 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Front-Loading Donation Calculator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #fafafa;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Front-Loading Donation Calculator</title>
 
-    .page {
-      display: flex;
-      flex-direction: column;
-      max-width: 1100px;
-      margin: auto;
-      padding: 15px;
-      gap: 20px;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #fafafa;
+}
 
-    h1 {
-      font-size: 20px;
-      margin: 0 0 10px 0;
-    }
+.page {
+  max-width: 1100px;
+  margin: auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
-    .layout {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+.tool, .instructions {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
 
-    .tool {
-      flex: 1;
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
+h1 { margin: 0 0 10px 0; }
 
-    .instructions {
-      flex: 1;
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      font-size: 14px;
-      line-height: 1.4;
-    }
+input.money {
+  width: 140px;
+  padding: 6px;
+  text-align: right;
+}
 
-    .controls {
-      margin-bottom: 15px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 14px;
-    }
+button {
+  margin-top: 12px;
+  padding: 10px 18px;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  background: black;
+  color: white;
+}
 
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
-      font-size: 14px;
-    }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
 
-    th, td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      text-align: center;
-    }
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: center;
+}
 
-    th {
-      background: #f2f2f2;
-    }
+th { background: #f2f2f2; }
 
-    input.money {
-      width: 100px;
-      padding: 4px;
-      text-align: right;
-    }
+.advanced {
+  margin-top: 15px;
+  border-top: 1px solid #ccc;
+  padding-top: 15px;
+  display: none;
+}
 
-    .year-col {
-      width: 65px;
-      font-weight: bold;
-    }
+.year-col { font-weight: bold; width: 70px; }
 
-    button {
-      margin-top: 15px;
-      padding: 10px 18px;
-      font-size: 15px;
-      cursor: pointer;
-      border-radius: 8px;
-      border: none;
-      background: black;
-      color: white;
-    }
+.toggle-advanced {
+  background: #333;
+}
 
-    /* Mobile mode: everything fits neatly */
-    @media (max-width: 700px) {
-      .layout {
-        flex-direction: column;
-      }
-      .instructions {
-        display: none;
-      }
-      .toggle-instructions { display: inline-block; }
-      table {
-        font-size: 12px;
-      }
-      input.money {
-        width: 80px;
-      }
-    }
+.result-box {
+  margin-top: 15px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #f6f8ff;
+  border: 1px solid #cdd6ff;
+  font-size: 16px;
+  line-height: 1.4;
+}
 
-    .toggle-instructions { 
-      margin-bottom: 10px;
-      width: 100%;
-      padding: 10px;
-      font-size: 14px;
-      border-radius: 8px;
-      border: none;
-      background: black;
-      color: white;
-      cursor: pointer;
-    }
-
-    /* Desktop mode: calculator + instructions side by side */
-    @media (min-width: 701px) {
-      .toggle-instructions {
-        display: none;
-      }
-      .layout {
-        flex-direction: row;
-        align-items: flex-start;
-      }
-    }
-  </style>
+.highlight {
+  font-weight: bold;
+  background: #ffe066;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+</style>
 </head>
+
 <body>
-  <div class="page">
-    <h1>Front-Loading Donation Calculator</h1>
 
-      <div class="instructions">
-        <h2 style="font-size:16px;margin-top:0;">How to Use This Tool</h2>
-        <p>
-          This calculator helps you shift (“front-load”) donations into the early crisis years
-          while keeping the overall long-term budget fair using Present Value (PV). <i>(If you don't know what PV is, that's OK. The calculator does the math part. You can keep in mind the "fair" part.)</i>
-        </p>
-        <ol>
-          <li>Enter your annual discount rate.
-		<ul>
-		  <li>If you don't have a guess, use 5%.</li>
-		  <li>If you want to front-load without discounting, user 0%</li>
-		</ul>
-          </li>
-          <li>Decide whether you're front-loading just into 2026, or into 3 years 2026-2028.</li>
-          <li>If you will want the same planned values entered for every year, check the "Use these values for all years" box and then enter the Original Planned Amount and Crisis Planned Amount once each. Remember that the Crisis Planned Amount should be no higher than the Original Planned Amount since if there's a crisis in 2027, you won't be increasing donations in 2035.
-          <li>If you want a more customized plan year-by-year, leave that box unchecked and enter the amounts for each year.
-          <li>Click <b>Calculate</b>. The tool will automatically set either the first year or the first three years to balance reductions later.</li>
-          <li>This tool is new. Find a bug? Email me at <a href="mailto:resistancepocketbook@gmail.com">resistancepocketbook@gmail.com</a> and let me know!</li>
-        </ol>
-      </div>
+<div class="page">
 
-    <div class="layout">
-      <button class="toggle-instructions" id="toggleBtn">Show Instructions</button>
-      <div class="tool">
-        <div class="controls">
-          <label>
-            Discount Rate (% per year):
-            <input type="number" id="rate" value="5" step="0.1" min="0" />
-          </label>
+<h1>Front-Loading Donation Calculator</h1>
 
-          <br><br>
+<div class="instructions">
 
-          <label>
-            <input type="radio" name="mode" value="one" checked />
-            One year (front-load into 2026)
-          </label>
-          <br>
-          <label>
-            <input type="radio" name="mode" value="three" />
-            Three years (front-load into 2026–2028)
-          </label>
+<h2 style="font-size:16px;margin-top:0;">How to Use This Tool</h2>
 
-          <br><br>
+<p>
+This calculator helps you front-load donations into the early crisis years
+while keeping your long-term plan financially fair using present value.
+You do not need to understand the math — the tool handles it.
+</p>
 
-          <label>
-            <input type="checkbox" id="sameAllYears" />
-            Use these values for all years
-          </label>
-          <br><br>
+<ol>
+<li>
+Enter your <b>Original</b> amount you would have planned to donate each year if there was no crisis. Also enter the 
+<b>Crisis</b> amount you could lower future donations to in order to increase donations sooner ("front-load" donations).
+</li>
 
-        <table id="masteTable">
-          <thead>
-            <tr>
-              <th>Original Planned Amount</th>
-              <th>Crisis Planned Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th><input type="text" id="masterOPA" class="money-input" placeholder="0"></th>
-              <th><input type="text" id="masterNPA" class="money-input" placeholder="0"></th>
-            </tr>
-	  </tbody>
-        </table>
+<li>
+Click <b>Calculate</b>. The early crisis years will adjust automatically.
+</li>
 
-        </div>
+<li>
+(Optional) Open <b>Advanced Options</b> to change assumptions
+or customize year-by-year.
+</li>
+</ol>
 
-        <table id="budgetTable">
-          <thead>
-            <tr>
-              <th class="year-col">Year</th>
-              <th>Original Planned Amount</th>
-              <th>Crisis Planned Amount</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+</div>
 
-        <button id="calcBtn">Calculate</button>
-      </div>
+<div class="tool">
 
-    </div>
-  </div>
+<h3>Basic Plan</h3>
 
-  <script>
-    const startYear = 2026;
-    const numYears = 20;
-    const tableBody = document.querySelector("#budgetTable tbody");
+<label>
+Original Planned Amount per Year:
+<input type="text" id="basicOPA" class="money" value="0">
+</label>
 
-    function formatMoneyInput(input) {
-      let val = parseInt(input.value.replace(/[^0-9]/g, "")) || 0;
-      input.value = val.toLocaleString("en-US");
+<label>
+Crisis Planned Amount per Year:
+<input type="text" id="basicNPA" class="money" value="0">
+</label>
+
+<div class="result-box" id="resultBox" style="display:none;"></div>
+<br>
+<button class="toggle-advanced" id="toggleAdvanced">
+Show Advanced Options
+</button>
+<button id="calcBtn">Calculate</button>
+
+<div class="advanced" id="advancedPanel">
+
+<h3>Advanced Options</h3>
+
+<label>
+<i>(A Discount Rate of 0% wil give a dollar-to-dollar shift in donations from later years to early years, but will probably be "unfair" to the donor because they will be effectively donating more value.)</i><br>
+Discount Rate (% per year):
+<input type="number" id="rate" value="5" step="0.1" min="0">
+</label>
+
+<br><br>
+
+<label>
+<input type="radio" name="mode" value="one">
+1-year crisis
+</label>
+
+<label>
+<input type="radio" name="mode" value="three" checked>
+3-year crisis
+</label>
+
+<table id="budgetTable">
+<thead>
+<tr>
+<th class="year-col">Year</th>
+<th>Original Planned Amount</th>
+<th>Crisis Planned Amount</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+</div>
+</div>
+</div>
+
+<script defer>
+document.addEventListener("DOMContentLoaded", function () {
+
+const startYear = 2026;
+const numYears = 20;
+const tableBody = document.querySelector("#budgetTable tbody");
+
+function formatMoney(n) {
+  return Math.round(n).toLocaleString("en-US");
+}
+
+function formatMoneyInput(input) {
+  let val = parseInt(input.value.replace(/[^0-9]/g, "")) || 0;
+  input.value = val.toLocaleString("en-US");
+}
+
+function getMoneyValue(input) {
+  return parseFloat(input.value.replace(/,/g, "")) || 0;
+}
+
+// Build table
+for (let i = 0; i < numYears; i++) {
+  const year = startYear + i;
+  const row = document.createElement("tr");
+
+  const y = document.createElement("td");
+  y.textContent = year;
+  y.className = "year-col";
+
+  const opa = document.createElement("td");
+  const opaInput = document.createElement("input");
+  opaInput.className = "money";
+  opaInput.value = "0";
+  opaInput.id = `opa-${year}`;
+  opaInput.addEventListener("blur", () => formatMoneyInput(opaInput));
+  opa.appendChild(opaInput);
+
+  const npa = document.createElement("td");
+  const npaInput = document.createElement("input");
+  npaInput.className = "money";
+  npaInput.value = "0";
+  npaInput.id = `npa-${year}`;
+  npaInput.addEventListener("blur", () => formatMoneyInput(npaInput));
+  npa.appendChild(npaInput);
+
+  row.appendChild(y);
+  row.appendChild(opa);
+  row.appendChild(npa);
+  tableBody.appendChild(row);
+}
+
+// Advanced toggle
+const toggleBtn = document.getElementById("toggleAdvanced");
+const adv = document.getElementById("advancedPanel");
+
+toggleBtn.onclick = () => {
+  adv.style.display = adv.style.display === "block" ? "none" : "block";
+  toggleBtn.textContent =
+    adv.style.display === "block"
+      ? "Hide Advanced Options"
+      : "Show Advanced Options";
+};
+
+// Sync basic inputs to table
+function syncBasicToTable() {
+  const opa = document.getElementById("basicOPA").value;
+  const npa = document.getElementById("basicNPA").value;
+
+  for (let i = 0; i < numYears; i++) {
+    const year = startYear + i;
+    document.getElementById(`opa-${year}`).value = opa;
+    document.getElementById(`npa-${year}`).value = npa;
+  }
+}
+
+document.getElementById("basicOPA")
+  .addEventListener("input", syncBasicToTable);
+
+document.getElementById("basicNPA")
+  .addEventListener("input", syncBasicToTable);
+
+// Calculation
+document.getElementById("calcBtn").onclick = () => {
+
+  syncBasicToTable();
+
+  let r = parseFloat(document.getElementById("rate").value);
+  r = isNaN(r) ? 0.05 : r / 100;
+
+  const mode =
+    document.querySelector("input[name='mode']:checked").value;
+
+  let PV = 0;
+
+  for (let i = 0; i < numYears; i++) {
+    const year = startYear + i;
+
+    const opa = getMoneyValue(document.getElementById(`opa-${year}`));
+    const npa = getMoneyValue(document.getElementById(`npa-${year}`));
+
+    const discount = Math.pow(1 + r, i + 1);
+
+    let diff = 0;
+    if (mode === "one") {
+      if (year !== 2026) diff = opa - npa;
+    } else {
+      if (![2026, 2027, 2028].includes(year))
+        diff = opa - npa;
     }
 
-    function getMoneyValue(input) {
-      return parseFloat(input.value.replace(/,/g, "")) || 0;
+    PV += diff / discount;
+  }
+
+  const resultBox = document.getElementById("resultBox");
+  let crisisAmount;
+
+  if (mode === "one") {
+    const opa = getMoneyValue(document.getElementById("opa-2026"));
+    crisisAmount = opa + PV;
+
+    document.getElementById("npa-2026").value =
+      formatMoney(crisisAmount);
+
+    resultBox.innerHTML =
+      `You should be donating <span class="highlight">$${formatMoney(crisisAmount)}</span>
+       in the crisis year <b>2026</b>.`;
+
+  } else {
+    crisisAmount = PV / 3;
+
+    for (let y of [2026, 2027, 2028]) {
+      const opa = getMoneyValue(document.getElementById(`opa-${y}`));
+      document.getElementById(`npa-${y}`).value =
+        formatMoney(opa + crisisAmount);
     }
 
-    // Build table rows
-    for (let i = 0; i < numYears; i++) {
-      const year = startYear + i;
-      const row = document.createElement("tr");
+    const finalAmount =
+      getMoneyValue(document.getElementById("npa-2026"));
 
-      const yearCell = document.createElement("td");
-      yearCell.textContent = year;
-      yearCell.className = "year-col";
+    resultBox.innerHTML =
+      `You should be donating
+       <span class="highlight">$${formatMoney(finalAmount)}</span>
+       in each crisis year <b>2026, 2027, and 2028</b>.`;
+  }
 
-      const opaCell = document.createElement("td");
-      const opaInput = document.createElement("input");
-      opaInput.type = "text";
-      opaInput.className = "money";
-      opaInput.value = "0";
-      opaInput.id = `opa-${year}`;
-      opaInput.addEventListener("blur", () => formatMoneyInput(opaInput));
-      opaCell.appendChild(opaInput);
+  resultBox.style.display = "block";
+};
 
-      const npaCell = document.createElement("td");
-      const npaInput = document.createElement("input");
-      npaInput.type = "text";
-      npaInput.className = "money";
-      npaInput.value = "0";
-      npaInput.id = `npa-${year}`;
-      npaInput.addEventListener("blur", () => formatMoneyInput(npaInput));
-      npaCell.appendChild(npaInput);
+});
+</script>
 
-      row.appendChild(yearCell);
-      row.appendChild(opaCell);
-      row.appendChild(npaCell);
-
-      tableBody.appendChild(row);
-    }
-
-    // Handle "All years the same"
-    document.getElementById("sameAllYears").addEventListener("change", function () {
-      const checked = this.checked;
-      const baseOPA = document.getElementById("masterOPA");
-      const baseNPA = document.getElementById("masterNPA");
-
-      for (let i = 0; i < numYears; i++) {
-        const year = startYear + i;
-        const opaField = document.getElementById(`opa-${year}`);
-        const npaField = document.getElementById(`npa-${year}`);
-
-        if (checked) {
-          opaField.value = baseOPA.value;
-          npaField.value = baseNPA.value;
-          opaField.disabled = true;
-          npaField.disabled = true;
-        } else {
-          opaField.disabled = false;
-          npaField.disabled = false;
-        }
-      }
-
-      if (checked) {
-        baseOPA.addEventListener("input", syncAllYears);
-        baseNPA.addEventListener("input", syncAllYears);
-      } else {
-        baseOPA.removeEventListener("input", syncAllYears);
-        baseNPA.removeEventListener("input", syncAllYears);
-      }
-    });
-
-    function validateCurrencyField(input, fieldName) {
-      const value = getMoneyValue(input);
-      if (value < 0) {
-        alert(`${fieldName} cannot be negative.`);
-        input.value = "0";
-        return false;
-      }
-      return true;
-    }
-
-    function validateCrisisVsOriginal(opaField, npaField, year) {
-      const opa = getMoneyValue(opaField);
-      const npa = getMoneyValue(npaField);
-
-      if (npa > opa) {
-        alert(`For ${year}, Crisis Planned Amount cannot be larger than Original Planned Amount.`);
-        npaField.value = opa.toLocaleString("en-US");
-        return false;
-      }
-      return true;
-    }
-
-    function validateDiscountRate() {
-      const rateInput = document.getElementById("rate");
-      const rateValue = parseFloat(rateInput.value);
-
-      if (isNaN(rateValue) || rateValue < 0 || rateValue > 50) {
-        alert("Discount rate must be between 0% and 50%.");
-        rateInput.value = ""; // Clear invalid input
-        rateInput.focus();    // Refocus the field for correction
-        return false;
-      }
-      return true;
-    }
-
-    for (let i = 0; i < numYears; i++) {
-      const year = startYear + i;
-      const opaField = document.getElementById(`opa-${year}`);
-      const npaField = document.getElementById(`npa-${year}`);
-
-      opaField.addEventListener("input", () => {
-        validateCurrencyField(opaField, `Original Planned Amount (${year})`);
-        validateCrisisVsOriginal(opaField, npaField, year);
-      });
-
-      npaField.addEventListener("input", () => {
-        validateCurrencyField(npaField, `Crisis Planned Amount (${year})`);
-        validateCrisisVsOriginal(opaField, npaField, year);
-      });
-    }
-
-    document.getElementById("masterOPA").addEventListener("input", function() {
-      validateCurrencyField(this, "Master Original Planned Amount");
-      syncAllYears();
-    });
-
-    document.getElementById("masterNPA").addEventListener("input", function() {
-      validateCurrencyField(this, "Master Crisis Planned Amount");
-      validateCrisisVsOriginal(
-        document.getElementById("masterOPA"),
-        this,
-        "Master Fields"
-      );
-      syncAllYears();
-    });
-
-    // Real-time validation (optional)
-    document.getElementById("rate").addEventListener("input", function() {
-      validateDiscountRate();
-    });
-
-    function syncAllYears() {
-      const baseOPA = document.getElementById("masterOPA").value;
-      const baseNPA = document.getElementById("masterNPA").value;
-
-      for (let i = 0; i < numYears; i++) {
-        const year = startYear + i;
-        document.getElementById(`opa-${year}`).value = baseOPA;
-        document.getElementById(`npa-${year}`).value = baseNPA;
-      }
-    }
-    
-    // Mobile instructions toggle
-    const toggleBtn = document.getElementById("toggleBtn");
-    const instructionsPanel = document.querySelector(".instructions");
-
-    toggleBtn.addEventListener("click", function() {
-      if (instructionsPanel.style.display === "block") {
-        instructionsPanel.style.display = "none";
-        toggleBtn.textContent = "Show Instructions";
-      } else {
-        instructionsPanel.style.display = "block";
-        toggleBtn.textContent = "Hide Instructions";
-      }
-    });
-
-    // Calculation
-    document.getElementById("calcBtn").addEventListener("click", function () {
-      const rPercent = parseFloat(document.getElementById("rate").value);
-      const r = rPercent / 100;
-      const mode = document.querySelector("input[name='mode']:checked").value;
-
-      let PV = 0;
-
-      for (let i = 0; i < numYears; i++) {
-        const year = startYear + i;
-
-        const opa = getMoneyValue(document.getElementById(`opa-${year}`));
-        const npa = getMoneyValue(document.getElementById(`npa-${year}`));
-
-        const exponent = i + 1;
-        const discountFactor = Math.pow(1 + r, exponent);
-
-        let diff = 0;
-        if (mode === "one") {
-          if (year !== 2026) diff = opa - npa;
-        } else {
-          if (![2026, 2027, 2028].includes(year)) diff = opa - npa;
-        }
-
-        PV += diff / discountFactor;
-      }
-
-      if (mode === "one") {
-        const opa2026 = getMoneyValue(document.getElementById("opa-2026"));
-        document.getElementById("npa-2026").value =
-          Math.round(opa2026 + PV).toLocaleString("en-US");
-      } else {
-        for (let year of [2026, 2027, 2028]) {
-          const opaVal = getMoneyValue(document.getElementById(`opa-${year}`));
-          document.getElementById(`npa-${year}`).value =
-            Math.round(opaVal + PV / 3).toLocaleString("en-US");
-        }
-      }
-
-      // No alert needed
-      // alert("Calculation complete. NPA values updated.");
-    });
-  </script>
 </body>
 </html>
-
-
-
-
-
-
-
