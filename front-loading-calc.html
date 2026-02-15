@@ -296,8 +296,8 @@ document.getElementById("calcBtn").onclick = () => {
   const resultBox = document.getElementById("resultBox");
   let crisisAmount;
 
+  const discount = Math.pow(1 + r, i + 1);
   if (mode === "one") {
-    const opa = getMoneyValue(document.getElementById("opa-2026"));
     crisisAmount = ((PV0-PV1)/discount)*discount
     document.getElementById("npa-2026").value =
       formatMoney(crisisAmount);
@@ -332,6 +332,7 @@ document.getElementById("calcBtn").onclick = () => {
 
 </body>
 </html>
+
 
 
 
