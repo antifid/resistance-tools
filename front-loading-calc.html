@@ -307,7 +307,7 @@ document.getElementById("calcBtn").onclick = () => {
        in the crisis year <b>2026</b>.`;
 
   } else {
-    crisisAmount = (PV0 - PV3)*discount/(1+1/(1+r)+1/(1+r)^2);
+    crisisAmount = (PV0 - PV3)*discount/(1+1/(1+r)+1/((1+r)*(1+r));
 
     for (let y of [2026, 2027, 2028]) {
       const opa = getMoneyValue(document.getElementById(`opa-${y}`));
@@ -332,6 +332,7 @@ document.getElementById("calcBtn").onclick = () => {
 
 </body>
 </html>
+
 
 
 
