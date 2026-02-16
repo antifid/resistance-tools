@@ -301,9 +301,9 @@ console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
     resultBox.innerHTML =
       `You should be donating <span class="highlight">$${formatMoney(crisisAmount)}</span>
        in the crisis year <b>2026</b>.`;
-
+//=(B33-F32)/(C1*(1+C1+C1^2))
   } else {
-    crisisAmount = ((PV0 - PV3 / Math.pow(1+r,3))*(1+r))/3
+    crisisAmount = (PV0 - PV3) * (1+r)*(1 + (1+r) + Math.pow(1+r,2))
     for (let y of [2026, 2027, 2028]) {
       document.getElementById(`npa-${y}`).value =
         formatMoney(crisisAmount);
@@ -326,6 +326,7 @@ console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
 
 </body>
 </html>
+
 
 
 
