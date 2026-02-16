@@ -279,7 +279,8 @@ document.getElementById("calcBtn").onclick = () => {
   let PV0 = 0;
   let PV1 = 0;
   let PV3 = 0;
-
+  let v = 1/(1+r);
+  
   for (let i = 0; i < numYears; i++) {
     const year = startYear + i;
 
@@ -287,15 +288,15 @@ document.getElementById("calcBtn").onclick = () => {
     const npa = getMoneyValue(document.getElementById(`npa-${year}`));
 
     PV0 += opa/Math.pow(1+r,1+i);
-    if (year !== 2026) PV1 += npa/Math.pow(1+r,1+i);
-    if (![2026, 2027, 2028].includes(year)) PV3 += npa/Math.pow(1+r,1+i);
+    if (year !== 2026) PV1 += npa*Math.pow(v,1+i);
+    if (![2026, 2027, 2028].includes(year)) PV3 += npa*Math.pow(v,1+i);
   }
 console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
   const resultBox = document.getElementById("resultBox");
   let crisisAmount;
 
   if (mode === "one") {
-    crisisAmount = (PV0-PV1/(1+r))*(1+r);
+    crisisAmount = (PV0-PV1)*(1+r);
     document.getElementById("npa-2026").value = formatMoney(crisisAmount);
 
     resultBox.innerHTML =
@@ -303,7 +304,7 @@ console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
        in the crisis year <b>2026</b>.`;
 //=(B33-F32)/(C1*(1+C1+C1^2))
   } else {
-    crisisAmount = (PV0 - PV3) * (1+r)*(1 + (1+r) + Math.pow(1+r,2))
+    crisisAmount = (PV0 - PV3) / (v + Math.pow(v,2) + Math.pow(v,3))
     for (let y of [2026, 2027, 2028]) {
       document.getElementById(`npa-${y}`).value =
         formatMoney(crisisAmount);
@@ -326,6 +327,7 @@ console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
 
 </body>
 </html>
+
 
 
 
