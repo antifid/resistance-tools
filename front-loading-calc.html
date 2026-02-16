@@ -286,12 +286,12 @@ document.getElementById("calcBtn").onclick = () => {
     const opa = getMoneyValue(document.getElementById(`opa-${year}`));
     const npa = getMoneyValue(document.getElementById(`npa-${year}`));
 
-    PV0 += opa*math.pow(1+r,1+i);
+    PV0 += opa*Math.pow(1+r,1+i);
     if (mode === "one") {
-      if (year !== 2026) PV1 += npa*math.pow(1+r,1+i);
+      if (year !== 2026) PV1 += npa*Math.pow(1+r,1+i);
     } else {
       if (![2026, 2027, 2028].includes(year))
-        PV3 += npa*math.pow(1+r,1+i);
+        PV3 += npa*Math.pow(1+r,1+i);
     }
   }
 
@@ -307,7 +307,7 @@ document.getElementById("calcBtn").onclick = () => {
        in the crisis year <b>2026</b>.`;
 
   } else {
-    crisisAmount = ((PV0 - PV3 / math.pow(1+r,3))*(1+r))/3
+    crisisAmount = ((PV0 - PV3 / Math.pow(1+r,3))*(1+r))/3
     for (let y of [2026, 2027, 2028]) {
       document.getElementById(`npa-${y}`).value =
         formatMoney(crisisAmount);
@@ -330,6 +330,7 @@ document.getElementById("calcBtn").onclick = () => {
 
 </body>
 </html>
+
 
 
 
