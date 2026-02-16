@@ -276,7 +276,9 @@ document.getElementById("calcBtn").onclick = () => {
   const mode =
     document.querySelector("input[name='mode']:checked").value;
 
-  let PV = 0;
+  let PV0 = 0;
+  let PV1 = 0;
+  let PV3 = 0;
 
   for (let i = 0; i < numYears; i++) {
     const year = startYear + i;
@@ -286,24 +288,20 @@ document.getElementById("calcBtn").onclick = () => {
 
     const discount = Math.pow(1 + r, i + 1);
 
-    let diff = 0;
+    PV0 += opa/discount;
     if (mode === "one") {
-      if (year !== 2026) diff = opa - npa;
+      if (year !== 2026) PV1 += npa/discount;
     } else {
       if (![2026, 2027, 2028].includes(year))
-        diff = opa - npa;
+        PV3 += npa/discount;
     }
-
-    PV += diff / discount;
   }
 
   const resultBox = document.getElementById("resultBox");
   let crisisAmount;
 
   if (mode === "one") {
-    const opa = getMoneyValue(document.getElementById("opa-2026"));
-    crisisAmount = opa + PV;
-
+    crisisAmount = (PV0-PV1*discount)/discount;
     document.getElementById("npa-2026").value =
       formatMoney(crisisAmount);
 
@@ -337,5 +335,6 @@ document.getElementById("calcBtn").onclick = () => {
 
 </body>
 </html>
+
 
 
