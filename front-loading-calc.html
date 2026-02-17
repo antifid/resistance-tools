@@ -105,7 +105,7 @@ th { background: #f2f2f2; }
 <h2 style="font-size:16px;margin-top:0;">Purpose of This Tool</h2>
 
 <p>
-This calculator helps you calculate the appropriate front-loaded donations for the early crisis years
+This calculator helps you determine the appropriate front-loaded donations for the early crisis years
 while keeping your long-term plan financially fair using <a href=https://www.investopedia.com/terms/p/presentvalue.asp target="_blank" rel="noopener noreferrer">present value</a>. You do not need to understand the math — the tool handles it.<br></p>
 <p>
 For a reminder about front-loading, you can review pages 18-20 in the <a href="https://drive.google.com/file/d/1ZN-5vYMGirHE4wUSWhBBiVj90zpcgUi7/view?usp=drive_link" target="_blank" rel="noopener noreferrer">presentation slides</a>.
@@ -115,7 +115,7 @@ For a reminder about front-loading, you can review pages 18-20 in the <a href="h
 
 <ol>
   <li>Enter the <b>Original Planned Amount:</b> Your normal yearly donation.</li>
-  <li>Enter the <b>Post-Crisis Planned Amount:</b> The reduced yearly donation you would be willing to make later in order to give more in the crisis years.</li>
+  <li>Enter the <b>Post-Crisis Planned Amount:</b> Your smaller yearly donation in later years after giving more now (for example, dropping from $1,000/year to $300/year to free money for earlier giving).</li>
   <li>Click <b>Calculate</b>. The calculator will tell you how much you should donate in the crisis years.</li>
   <li>(Optional) Open <b>Advanced Options</b> to change assumptions or customize year-by-year.</li>
 </ol>
@@ -152,7 +152,7 @@ Show Advanced Options
 <h3>Advanced Options</h3>
 
 <label>
-<i><b>Special Case:</b>A Discount Rate of 0% will give a dollar-to-dollar shift in donations from later years to early years. This is simplest. However, it will be "unfair" to the donor because they will be effectively donating more value.)</i><br><br>
+<i><b>Special Case:</b>A Discount Rate of 0% will give a dollar-to-dollar shift in donations from later years to early years.</i><br><br>
 Discount Rate (% per year):
 <input type="number" id="rate" value="5" step="0.1" min="0">
 </label>
@@ -379,6 +379,7 @@ document.getElementById("calcBtn").onclick = () => {
 
 </body>
 </html>
+
 
 
 
