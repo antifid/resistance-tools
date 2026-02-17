@@ -204,6 +204,9 @@ function getMoneyValue(input) {
   return parseFloat(input.value.replace(/,/g, "")) || 0;
 }
 
+let advancedOPAEdited = false;
+let advancedNPAEdited = false;
+
 // Build table
 for (let i = 0; i < numYears; i++) {
   const year = startYear + i;
@@ -219,6 +222,11 @@ for (let i = 0; i < numYears; i++) {
   opaInput.value = "0";
   opaInput.id = `opa-${year}`;
   opaInput.addEventListener("blur", () => formatMoneyInput(opaInput));
+  opaInput.addEventListener("input", () => {
+    advancedOPAEdited = true;
+    document.getElementById("basicOPA").value = "";
+  });
+
   opa.appendChild(opaInput);
 
   const npa = document.createElement("td");
@@ -227,6 +235,10 @@ for (let i = 0; i < numYears; i++) {
   npaInput.value = "0";
   npaInput.id = `npa-${year}`;
   npaInput.addEventListener("blur", () => formatMoneyInput(npaInput));
+  npaInput.addEventListener("input", () => {
+    advancedNPAEdited = true;
+    document.getElementById("basicNPA").value = "";
+  });
   npa.appendChild(npaInput);
 
   row.appendChild(y);
@@ -254,8 +266,14 @@ function syncBasicToTable() {
 
   for (let i = 0; i < numYears; i++) {
     const year = startYear + i;
-    document.getElementById(`opa-${year}`).value = opa;
-    document.getElementById(`npa-${year}`).value = npa;
+
+    if (!advancedOPAEdited) {
+      document.getElementById(`opa-${year}`).value = opa;
+    }
+
+    if (!advancedNPAEdited) {
+      document.getElementById(`npa-${year}`).value = npa;
+    }
   }
 }
 
@@ -268,7 +286,7 @@ document.getElementById("basicNPA")
 // Calculation
 document.getElementById("calcBtn").onclick = () => {
 
-//  syncBasicToTable();
+  syncBasicToTable();
 
   let r = parseFloat(document.getElementById("rate").value);
   r = isNaN(r) ? 0.05 : r / 100;
@@ -327,6 +345,7 @@ console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
 
 </body>
 </html>
+
 
 
 
