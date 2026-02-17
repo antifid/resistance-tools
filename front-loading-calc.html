@@ -277,11 +277,17 @@ function syncBasicToTable() {
   }
 }
 
-document.getElementById("basicOPA")
-  .addEventListener("input", syncBasicToTable);
+document.getElementById("basicOPA").addEventListener("input", () => {
+  advancedOPAEdited = false;
+  advancedNPAEdited = false;
+  syncBasicToTable();
+});
 
-document.getElementById("basicNPA")
-  .addEventListener("input", syncBasicToTable);
+document.getElementById("basicNPA").addEventListener("input", () => {
+  advancedOPAEdited = false;
+  advancedNPAEdited = false;
+  syncBasicToTable();
+});
 
 // Calculation
 document.getElementById("calcBtn").onclick = () => {
@@ -345,6 +351,7 @@ console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
 
 </body>
 </html>
+
 
 
 
