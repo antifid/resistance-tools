@@ -185,6 +185,12 @@ Discount Rate (% per year):
 </div>
 
 <script defer>
+document.addEventListener("DOMContentLoaded", function () {
+
+const startYear = 2026;
+const numYears = 20;
+const tableBody = document.querySelector("#budgetTable tbody");
+
 function resetAllInputs() {
   // Reset discount rate
   document.getElementById("rate").value = "5";
@@ -208,12 +214,6 @@ function resetAllInputs() {
   const resultBox = document.getElementById("resultMessage");
   if (resultBox) resultBox.textContent = "";
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-
-const startYear = 2026;
-const numYears = 20;
-const tableBody = document.querySelector("#budgetTable tbody");
 
 function formatMoney(n) {
   return Math.round(n).toLocaleString("en-US");
@@ -379,6 +379,7 @@ document.getElementById("calcBtn").onclick = () => {
 
 </body>
 </html>
+
 
 
 
