@@ -185,7 +185,7 @@ Discount Rate (% per year):
 </div>
 
 <script defer>
-  function resetAllInputs() {
+function resetAllInputs() {
   // Reset discount rate
   document.getElementById("rate").value = "5";
 
@@ -340,10 +340,6 @@ document.getElementById("calcBtn").onclick = () => {
     if (![2026, 2027, 2028].includes(year)) PV3 += npa*Math.pow(v,1+i);
   }
 
-  document.querySelectorAll("input[name='mode']").forEach(radio => {
-    radio.addEventListener("change", resetAllInputs);
-  }
-                                                          
   const resultBox = document.getElementById("resultBox");
   let crisisAmount;
 
@@ -374,11 +370,16 @@ document.getElementById("calcBtn").onclick = () => {
   resultBox.style.display = "block";
 };
 
+  document.querySelectorAll("input[name='mode']").forEach(radio => {
+    radio.addEventListener("change", resetAllInputs);
+  }
+                                                  
 });
 </script>
 
 </body>
 </html>
+
 
 
 
