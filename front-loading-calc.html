@@ -169,6 +169,10 @@ Discount Rate (% per year):
 3-year crisis
 </label>
 
+document.querySelectorAll("input[name='mode']").forEach(radio => {
+  radio.addEventListener("change", resetAllInputs);
+});
+
 <table id="budgetTable">
 <thead>
 <tr>
@@ -185,6 +189,30 @@ Discount Rate (% per year):
 </div>
 
 <script defer>
+  function resetAllInputs() {
+  // Reset discount rate
+  document.getElementById("rate").value = "5";
+
+  // Clear basic plan
+  document.getElementById("basicOPA").value = "";
+  document.getElementById("basicNPA").value = "";
+
+  // Reset advanced flags
+  advancedOPAEdited = false;
+  advancedNPAEdited = false;
+
+  // Clear advanced yearly table
+  for (let i = 0; i < numYears; i++) {
+    const year = startYear + i;
+    document.getElementById(`opa-${year}`).value = "";
+    document.getElementById(`npa-${year}`).value = "";
+  }
+
+  // Optional: clear any result message
+  const resultBox = document.getElementById("resultMessage");
+  if (resultBox) resultBox.textContent = "";
+}
+
 document.addEventListener("DOMContentLoaded", function () {
 
 const startYear = 2026;
@@ -351,6 +379,7 @@ console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
 
 </body>
 </html>
+
 
 
 
