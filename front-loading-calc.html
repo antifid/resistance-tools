@@ -169,10 +169,6 @@ Discount Rate (% per year):
 3-year crisis
 </label>
 
-document.querySelectorAll("input[name='mode']").forEach(radio => {
-  radio.addEventListener("change", resetAllInputs);
-});
-
 <table id="budgetTable">
 <thead>
 <tr>
@@ -343,7 +339,7 @@ document.getElementById("calcBtn").onclick = () => {
     if (year !== 2026) PV1 += npa*Math.pow(v,1+i);
     if (![2026, 2027, 2028].includes(year)) PV3 += npa*Math.pow(v,1+i);
   }
-console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
+
   const resultBox = document.getElementById("resultBox");
   let crisisAmount;
 
@@ -374,11 +370,15 @@ console.log("PV0 = "+PV0+" PV1 = "+PV1+" PV3 = "+PV3)
   resultBox.style.display = "block";
 };
 
+document.querySelectorAll("input[name='mode']").forEach(radio => {
+  radio.addEventListener("change", resetAllInputs);
+};
 });
 </script>
 
 </body>
 </html>
+
 
 
 
