@@ -37,6 +37,17 @@ input.money {
   text-align: right;
 }
 
+input.pct {
+  width: 90px;
+  padding: 6px;
+  text-align: right;
+}
+
+input.readonly-output {
+  background: #f5f5f5;
+  color: #333;
+}
+
 button {
   margin-top: 12px;
   padding: 10px 18px;
@@ -58,6 +69,7 @@ th, td {
   border: 1px solid #ccc;
   padding: 6px;
   text-align: center;
+  vertical-align: middle;
 }
 
 th { background: #f2f2f2; }
@@ -82,7 +94,7 @@ th { background: #f2f2f2; }
   background: #f6f8ff;
   border: 1px solid #cdd6ff;
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .highlight {
@@ -106,48 +118,56 @@ th { background: #f2f2f2; }
 
 <p>
 This calculator helps you determine the appropriate front-loaded donations for the early crisis years
-while keeping your long-term plan financially fair using <a href=https://www.investopedia.com/terms/p/presentvalue.asp target="_blank" rel="noopener noreferrer">present value</a>. You do not need to understand the math — the tool handles it.<br></p>
+while keeping your long-term plan financially fair using <a href="https://www.investopedia.com/terms/p/presentvalue.asp" target="_blank" rel="noopener noreferrer">present value</a>. You do not need to understand the math — the tool handles it.
+</p>
 <p>
 For a reminder about front-loading, you can review pages 18-21 in the <a href="https://drive.google.com/file/d/1F8881y3RwxgJk997jybZk04e7T69R6uc/view?usp=drive_link" target="_blank" rel="noopener noreferrer">presentation slides</a>.
 </p>
 
 <h2 style="font-size:16px;margin-top:0;">Privacy</h2>
-<p></p>This calculator does not store or transmit any of the information you enter. Everything is done locally in your browser.</p>
-  
+<p>This calculator does not store or transmit any of the information you enter. Everything is done locally in your browser.</p>
+
 <h2 style="font-size:16px;margin-top:0;">How to Use This Tool</h2>
 
 <ol>
-  <li>Enter the <b>Original Planned Amount:</b> Your normal yearly donation.</li>
-  <li>Enter the <b>Post-Crisis Planned Amount:</b> Your smaller yearly donation in later years after giving more now (for example, dropping from $1,000/year to $300/year to free money for earlier giving).</li>
-  <li>Click <b>Calculate</b>. The calculator will tell you how much you should donate in the crisis years.</li>
+  <li>Enter the <b>Normal Annual Donation:</b> Your normal yearly donation.</li>
+  <li>Enter the <b>Percent to Shift to Crisis Years:</b> The percent of your normal donation that should be moved into the crisis years.</li>
+  <li>Click <b>Calculate</b>. The calculator will tell you how much you should donate in the crisis years and show the calculated post-crisis amounts.</li>
   <li>(Optional) Open <b>Advanced Options</b> to change assumptions or customize year-by-year.</li>
 </ol>
-  This tool is new. Find a bug? Email me at <a href="mailto:resistancepocketbook@gmail.com">resistancepocketbook@gmail.com</a> and let me know!
+This tool is new. Find a bug? Email me at <a href="mailto:resistancepocketbook@gmail.com">resistancepocketbook@gmail.com</a> and let me know!
+
 </div>
 
 <div class="tool">
 
 <h3>Basic Plan</h3>
 
-<table id=baseAmounts>
-<thead><tr><th colspan="2">Planned Donation Amounts per Year</th></tr></thead>
-<tr>
-<td><label>
-Original Planned Amount:
-<input type="text" id="basicOPA" class="money" value="0">
-</label></td>
-
-<td><label>
-Post-Crisis Planned Amount:
-<input type="text" id="basicNPA" class="money" value="0">
-</label></td>
-</tr></table>
+<table id="baseAmounts">
+  <thead>
+    <tr><th colspan="2">Planned Donation Amounts per Year</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <label>
+          Normal Annual Donation:
+          <input type="text" id="basicOPA" class="money" value="0">
+        </label>
+      </td>
+      <td>
+        <label>
+          Percent to Shift to Crisis Years (%):
+          <input type="number" id="basicPct" class="pct" value="0" min="0" max="100" step="0.1">
+        </label>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 <div class="result-box" id="resultBox" style="display:none;"></div>
 <br>
-<button class="toggle-advanced" id="toggleAdvanced">
-Show Advanced Options
-</button>
+<button class="toggle-advanced" id="toggleAdvanced">Show Advanced Options</button>
 <button id="calcBtn">Calculate</button>
 
 <div class="advanced" id="advancedPanel">
@@ -155,7 +175,7 @@ Show Advanced Options
 <h3>Advanced Options</h3>
 
 <label>
-<i><b>Special Case:</b>A Discount Rate of 0% will give a dollar-to-dollar shift in donations from later years to early years.</i><br><br>
+<i><b>Special Case:</b> A Discount Rate of 0% will give a dollar-to-dollar shift in donations from later years to early years.</i><br><br>
 Discount Rate (% per year):
 <input type="number" id="rate" value="5" step="0.1" min="0">
 </label>
@@ -172,240 +192,374 @@ Discount Rate (% per year):
 3-year crisis
 </label>
 
+<div style="margin-top:12px;margin-bottom:12px;">
+  <label>
+    <input type="checkbox" id="samePctAll" checked>
+    Use the same percentage for all post-crisis years
+  </label>
+  <div id="sharedPctWrapper" style="margin-top:8px;">
+    Shared Percent to Shift (%):
+    <input type="number" id="sharedPct" class="pct" value="0" min="0" max="100" step="0.1">
+  </div>
+</div>
+
 <table id="budgetTable">
-<thead>
-<tr>
-<th class="year-col">Year</th>
-<th>Original Planned Amount</th>
-<th>Post-Crisis Planned Amount</th>
-</tr>
-</thead>
-<tbody></tbody>
+  <thead>
+    <tr>
+      <th class="year-col">Year</th>
+      <th>Normal Planned Amount</th>
+      <th>Percent to Shift (%)</th>
+      <th>Post-Crisis Planned Amount</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
 </table>
 
 </div>
 </div>
 </div>
 
-<script defer>
+<script>
 document.addEventListener("DOMContentLoaded", function () {
 
 const startYear = 2026;
 const numYears = 20;
 const tableBody = document.querySelector("#budgetTable tbody");
 
-function resetAllInputs() {
-  // Reset discount rate
-  document.getElementById("rate").value = "5";
-
-  // Clear basic plan
-  document.getElementById("basicOPA").value = "";
-  document.getElementById("basicNPA").value = "";
-
-  // Reset advanced flags
-  advancedOPAEdited = false;
-  advancedNPAEdited = false;
-
-  // Clear advanced yearly table
-  for (let i = 0; i < numYears; i++) {
-    const year = startYear + i;
-    document.getElementById(`opa-${year}`).value = "";
-    document.getElementById(`npa-${year}`).value = "";
-  }
-
-  // Optional: clear any result message
-  const resultBox = document.getElementById("resultBox");
-  if (resultBox) resultBox.textContent = "";
-}
+let advancedOPAEdited = false;
+let advancedPctEdited = false;
 
 function formatMoney(n) {
   return Math.round(n).toLocaleString("en-US");
 }
 
 function formatMoneyInput(input) {
-  let val = parseInt(input.value.replace(/[^0-9]/g, "")) || 0;
+  let val = parseInt(String(input.value).replace(/[^0-9]/g, ""), 10) || 0;
   input.value = val.toLocaleString("en-US");
 }
 
 function getMoneyValue(input) {
-  return parseFloat(input.value.replace(/,/g, "")) || 0;
+  return parseFloat(String(input.value).replace(/,/g, "")) || 0;
 }
 
-let advancedOPAEdited = false;
-let advancedNPAEdited = false;
-
-// Build table
-for (let i = 0; i < numYears; i++) {
-  const year = startYear + i;
-  const row = document.createElement("tr");
-
-  const y = document.createElement("td");
-  y.textContent = year;
-  y.className = "year-col";
-
-  const opa = document.createElement("td");
-  const opaInput = document.createElement("input");
-  opaInput.className = "money";
-  opaInput.value = "0";
-  opaInput.id = `opa-${year}`;
-  opaInput.addEventListener("blur", () => formatMoneyInput(opaInput));
-  opaInput.addEventListener("input", () => {
-    advancedOPAEdited = true;
-    document.getElementById("basicOPA").value = "";
-  });
-
-  opa.appendChild(opaInput);
-
-  const npa = document.createElement("td");
-  const npaInput = document.createElement("input");
-  npaInput.className = "money";
-  npaInput.value = "0";
-  npaInput.id = `npa-${year}`;
-  npaInput.addEventListener("blur", () => formatMoneyInput(npaInput));
-  npaInput.addEventListener("input", () => {
-    advancedNPAEdited = true;
-    document.getElementById("basicNPA").value = "";
-  });
-  npa.appendChild(npaInput);
-
-  row.appendChild(y);
-  row.appendChild(opa);
-  row.appendChild(npa);
-  tableBody.appendChild(row);
+function clampPercent(value) {
+  let n = parseFloat(value);
+  if (isNaN(n)) return 0;
+  if (n < 0) return 0;
+  if (n > 100) return 100;
+  return n;
 }
 
-// Advanced toggle
+function getPercentNumber(input) {
+  return clampPercent(input.value);
+}
+
+function getPercentFraction(input) {
+  return getPercentNumber(input) / 100;
+}
+
+function getMode() {
+  return document.querySelector("input[name='mode']:checked").value;
+}
+
+function getCrisisYears() {
+  return getMode() === "one" ? [2026] : [2026, 2027, 2028];
+}
+
+function isCrisisYear(year) {
+  return getCrisisYears().includes(year);
+}
+
+function getPostCrisisYears() {
+  const crisisYears = getCrisisYears();
+  return Array.from({ length: numYears }, (_, i) => startYear + i).filter(y => !crisisYears.includes(y));
+}
+
+function yearRangeText(years) {
+  if (years.length === 0) return "";
+  if (years.length === 1) return String(years[0]);
+  if (years.length === 2) return `${years[0]} and ${years[1]}`;
+  if (years.length === 3) return `${years[0]}, ${years[1]}, and ${years[2]}`;
+  return `${years[0]}-${years[years.length - 1]}`;
+}
+
+function resetAllInputs() {
+  document.getElementById("rate").value = "5";
+  document.getElementById("basicOPA").value = "";
+  document.getElementById("basicPct").value = "";
+  document.getElementById("sharedPct").value = "";
+  document.getElementById("samePctAll").checked = true;
+
+  advancedOPAEdited = false;
+  advancedPctEdited = false;
+
+  for (let i = 0; i < numYears; i++) {
+    const year = startYear + i;
+    document.getElementById(`opa-${year}`).value = "";
+    document.getElementById(`pct-${year}`).value = "";
+    document.getElementById(`npa-${year}`).value = "";
+  }
+
+  const resultBox = document.getElementById("resultBox");
+  resultBox.innerHTML = "";
+  resultBox.style.display = "none";
+
+  updateRowStates();
+}
+
+function buildTable() {
+  for (let i = 0; i < numYears; i++) {
+    const year = startYear + i;
+    const row = document.createElement("tr");
+
+    const y = document.createElement("td");
+    y.textContent = year;
+    y.className = "year-col";
+
+    const opa = document.createElement("td");
+    const opaInput = document.createElement("input");
+    opaInput.className = "money";
+    opaInput.value = "0";
+    opaInput.id = `opa-${year}`;
+    opaInput.addEventListener("blur", () => formatMoneyInput(opaInput));
+    opaInput.addEventListener("input", () => {
+      advancedOPAEdited = true;
+      document.getElementById("basicOPA").value = "";
+    });
+    opa.appendChild(opaInput);
+
+    const pct = document.createElement("td");
+    const pctInput = document.createElement("input");
+    pctInput.type = "number";
+    pctInput.className = "pct";
+    pctInput.value = "0";
+    pctInput.min = "0";
+    pctInput.max = "100";
+    pctInput.step = "0.1";
+    pctInput.id = `pct-${year}`;
+    pctInput.addEventListener("blur", () => {
+      pctInput.value = getPercentNumber(pctInput);
+    });
+    pctInput.addEventListener("input", () => {
+      if (!pctInput.disabled) {
+        advancedPctEdited = true;
+        document.getElementById("basicPct").value = "";
+      }
+    });
+    pct.appendChild(pctInput);
+
+    const npa = document.createElement("td");
+    const npaInput = document.createElement("input");
+    npaInput.className = "money readonly-output";
+    npaInput.value = "";
+    npaInput.id = `npa-${year}`;
+    npaInput.readOnly = true;
+    npa.appendChild(npaInput);
+
+    row.appendChild(y);
+    row.appendChild(opa);
+    row.appendChild(pct);
+    row.appendChild(npa);
+    tableBody.appendChild(row);
+  }
+}
+
+function updateRowStates() {
+  const samePctAll = document.getElementById("samePctAll").checked;
+  const sharedPct = document.getElementById("sharedPct");
+  const crisisYears = getCrisisYears();
+
+  document.getElementById("sharedPctWrapper").style.display = samePctAll ? "block" : "none";
+  sharedPct.disabled = !samePctAll;
+
+  for (let i = 0; i < numYears; i++) {
+    const year = startYear + i;
+    const pctInput = document.getElementById(`pct-${year}`);
+
+    if (crisisYears.includes(year)) {
+      pctInput.value = "";
+      pctInput.disabled = true;
+    } else if (samePctAll) {
+      pctInput.disabled = true;
+      pctInput.value = document.getElementById("sharedPct").value;
+    } else {
+      pctInput.disabled = false;
+      if (pctInput.value === "") pctInput.value = "0";
+    }
+  }
+}
+
+function syncBasicToTable() {
+  const opa = document.getElementById("basicOPA").value;
+  const pct = document.getElementById("basicPct").value;
+
+  if (!advancedOPAEdited) {
+    for (let i = 0; i < numYears; i++) {
+      const year = startYear + i;
+      document.getElementById(`opa-${year}`).value = opa;
+    }
+  }
+
+  if (!advancedPctEdited) {
+    document.getElementById("samePctAll").checked = true;
+    document.getElementById("sharedPct").value = pct;
+
+    for (let i = 0; i < numYears; i++) {
+      const year = startYear + i;
+      if (!isCrisisYear(year)) {
+        document.getElementById(`pct-${year}`).value = pct;
+      } else {
+        document.getElementById(`pct-${year}`).value = "";
+      }
+    }
+  }
+
+  updateRowStates();
+}
+
+function derivePostCrisisAmounts() {
+  const samePctAll = document.getElementById("samePctAll").checked;
+  const sharedPctFraction = getPercentFraction(document.getElementById("sharedPct"));
+
+  for (let i = 0; i < numYears; i++) {
+    const year = startYear + i;
+    const opa = getMoneyValue(document.getElementById(`opa-${year}`));
+    const npaInput = document.getElementById(`npa-${year}`);
+
+    if (isCrisisYear(year)) {
+      npaInput.value = "";
+      continue;
+    }
+
+    let pctFraction;
+    if (samePctAll) {
+      pctFraction = sharedPctFraction;
+      document.getElementById(`pct-${year}`).value = getPercentNumber(document.getElementById("sharedPct"));
+    } else {
+      pctFraction = getPercentFraction(document.getElementById(`pct-${year}`));
+    }
+
+    const postCrisisAmount = (1 - pctFraction) * opa;
+    npaInput.value = formatMoney(postCrisisAmount);
+  }
+}
+
+function getPostCrisisAmountsArray() {
+  return getPostCrisisYears().map(year => getMoneyValue(document.getElementById(`npa-${year}`)));
+}
+
+function postCrisisAmountsAreUniform() {
+  const amounts = getPostCrisisAmountsArray().map(v => Math.round(v));
+  if (amounts.length === 0) return true;
+  return amounts.every(v => v === amounts[0]);
+}
+
+buildTable();
+updateRowStates();
+
 const toggleBtn = document.getElementById("toggleAdvanced");
 const adv = document.getElementById("advancedPanel");
 
 toggleBtn.onclick = () => {
   adv.style.display = adv.style.display === "block" ? "none" : "block";
-  toggleBtn.textContent =
-    adv.style.display === "block"
-      ? "Hide Advanced Options"
-      : "Show Advanced Options";
+  toggleBtn.textContent = adv.style.display === "block" ? "Hide Advanced Options" : "Show Advanced Options";
 };
-
-// Sync basic inputs to table
-function syncBasicToTable() {
-  const opa = document.getElementById("basicOPA").value;
-  const npa = document.getElementById("basicNPA").value;
-
-  for (let i = 0; i < numYears; i++) {
-    const year = startYear + i;
-
-    if (!advancedOPAEdited) {
-      document.getElementById(`opa-${year}`).value = opa;
-    }
-
-    if (!advancedNPAEdited) {
-      document.getElementById(`npa-${year}`).value = npa;
-    }
-  }
-}
 
 document.getElementById("basicOPA").addEventListener("input", () => {
   advancedOPAEdited = false;
-  advancedNPAEdited = false;
+  advancedPctEdited = false;
   syncBasicToTable();
 });
 
-document.getElementById("basicNPA").addEventListener("input", () => {
+document.getElementById("basicPct").addEventListener("input", () => {
   advancedOPAEdited = false;
-  advancedNPAEdited = false;
+  advancedPctEdited = false;
   syncBasicToTable();
 });
 
-// Calculation
-document.getElementById("calcBtn").onclick = () => {
+document.getElementById("sharedPct").addEventListener("input", () => {
+  advancedPctEdited = true;
+  document.getElementById("basicPct").value = "";
+  updateRowStates();
+});
 
+document.getElementById("samePctAll").addEventListener("change", () => {
+  advancedPctEdited = true;
+  document.getElementById("basicPct").value = "";
+  updateRowStates();
+});
+
+document.querySelectorAll("input[name='mode']").forEach(radio => {
+  radio.addEventListener("change", resetAllInputs);
+});
+
+document.getElementById("calcBtn").onclick = () => {
   syncBasicToTable();
 
   let r = parseFloat(document.getElementById("rate").value);
   r = isNaN(r) ? 0.05 : r / 100;
 
-  const mode =
-    document.querySelector("input[name='mode']:checked").value;
+  updateRowStates();
+  derivePostCrisisAmounts();
 
+  const mode = getMode();
   let PV0 = 0;
   let PV1 = 0;
   let PV3 = 0;
-  let v = 1/(1+r);
-  
+  const v = 1 / (1 + r);
+
   for (let i = 0; i < numYears; i++) {
     const year = startYear + i;
-
     const opa = getMoneyValue(document.getElementById(`opa-${year}`));
     const npa = getMoneyValue(document.getElementById(`npa-${year}`));
 
-    PV0 += opa/Math.pow(1+r,1+i);
-    if (year !== 2026) PV1 += npa*Math.pow(v,1+i);
-    if (![2026, 2027, 2028].includes(year)) PV3 += npa*Math.pow(v,1+i);
+    PV0 += opa / Math.pow(1 + r, 1 + i);
+    if (year !== 2026) PV1 += npa * Math.pow(v, 1 + i);
+    if (![2026, 2027, 2028].includes(year)) PV3 += npa * Math.pow(v, 1 + i);
   }
 
   const resultBox = document.getElementById("resultBox");
   let crisisAmount;
 
   if (mode === "one") {
-    crisisAmount = (PV0-PV1)*(1+r);
+    crisisAmount = (PV0 - PV1) * (1 + r);
     document.getElementById("npa-2026").value = formatMoney(crisisAmount);
 
-    resultBox.innerHTML =
-      `You should be donating <span class="highlight">$${formatMoney(crisisAmount)}</span>
-       in the crisis year <b>2026</b>.`;
-//=(B33-F32)/(C1*(1+C1+C1^2))
-  } else {
-    crisisAmount = (PV0 - PV3) / (v + Math.pow(v,2) + Math.pow(v,3))
-    for (let y of [2026, 2027, 2028]) {
-      document.getElementById(`npa-${y}`).value =
-        formatMoney(crisisAmount);
+    let resultHtml = `You should be donating <span class="highlight">$${formatMoney(crisisAmount)}</span> in the crisis year <b>2026</b>.`;
+    const postYears = getPostCrisisYears();
+
+    if (postCrisisAmountsAreUniform()) {
+      const postAmount = getMoneyValue(document.getElementById(`npa-${postYears[0]}`));
+      resultHtml += `<br>You should be donating <span class="highlight">$${formatMoney(postAmount)}</span> in each post-crisis year <b>${yearRangeText(postYears)}</b>.`;
+    } else {
+      resultHtml += `<br>Post-crisis donation amounts vary by year and are shown in the table for <b>${yearRangeText(postYears)}</b>.`;
     }
 
-    const finalAmount =
-      getMoneyValue(document.getElementById("npa-2026"));
+    resultBox.innerHTML = resultHtml;
+  } else {
+    crisisAmount = (PV0 - PV3) / (v + Math.pow(v, 2) + Math.pow(v, 3));
+    for (let y of [2026, 2027, 2028]) {
+      document.getElementById(`npa-${y}`).value = formatMoney(crisisAmount);
+    }
 
-    resultBox.innerHTML =
-      `You should be donating
-       <span class="highlight">$${formatMoney(finalAmount)}</span>
-       in each crisis year <b>2026, 2027, and 2028</b>.`;
+    let resultHtml = `You should be donating <span class="highlight">$${formatMoney(crisisAmount)}</span> in each crisis year <b>2026, 2027, and 2028</b>.`;
+    const postYears = getPostCrisisYears();
+
+    if (postCrisisAmountsAreUniform()) {
+      const postAmount = getMoneyValue(document.getElementById(`npa-${postYears[0]}`));
+      resultHtml += `<br>You should be donating <span class="highlight">$${formatMoney(postAmount)}</span> in each post-crisis year <b>${yearRangeText(postYears)}</b>.`;
+    } else {
+      resultHtml += `<br>Post-crisis donation amounts vary by year and are shown in the table for <b>${yearRangeText(postYears)}</b>.`;
+    }
+
+    resultBox.innerHTML = resultHtml;
   }
 
   resultBox.style.display = "block";
 };
 
-  document.querySelectorAll("input[name='mode']").forEach(radio => {
-    radio.addEventListener("change", resetAllInputs);
-  });
-                                                  
 });
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
